@@ -4,6 +4,12 @@ const getMessages = () => {
 	return db("messages")
 }
 
+const getAllUserMessages = (id) => {
+	return db("messages")
+		.where("fromId", id)
+		.orWhere("toId", id)
+}
+
 const getUserMessages = (fromId, toId) => {
 	return db('messages')
 		.where("fromId", fromId)
@@ -38,6 +44,7 @@ const deleteUserMessages = (arrIds) => {
 
 module.exports = {
 	getMessages,
+	getAllUserMessages,
 	getUserMessages,
 	postUserMessage,
 	deleteUserMessages,

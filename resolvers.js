@@ -64,7 +64,14 @@ const resolvers = {
 			if (!ctx.user) {
 				throw new Error("Not Authenticated")
 			}
-			const returned = await ctx.messagesDb.deleteUserMessages(input.ids)
+			const deleteable = ctx.messagesDb.getAllUserMessages(ctx.user.id).map(x => {
+				if (input.ids.includes(x.id)) {
+					return x.id
+				} else {
+					throw new Error(`Message ${x.id} doesn't belong to you. Deleation not accepted.`)
+				}
+			}) 
+			const returned = await ctx.messagesDb.deleteUserMessages(deleteable)
 			const object = returned.map((x, i) => {
 				let deleted
 				x[input.ids[i]] === 0 ? deleted = false : deleted = true 
