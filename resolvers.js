@@ -5,13 +5,29 @@ const SECRET = process.env.JWT_SECRET
 const resolvers = {
 	Query: {
 		users: async (_, __, ctx) => {
-			return await ctx.usersDb.getUsers()
+			const loggedInUser = await ctx.usersDb.getSingleUserById(ctx.user.id)
+			return loggedInUser.conversation.map(async x => {
+				const user = await ctx.usersDb.getSingleUserById(x.id)
+				return user.username
+			})
 		},
 		user: async (_, __, ctx) => {
 			if (!ctx.user) {
 				throw new Error("Not Authenticated")
 			}
-			return await ctx.usersDb.getSingleUserById(ctx.user.id)
+			let theUser = await ctx.usersDb.getSingleUserById(ctx.user.id)
+			const conversations = await ctx.messagesDb.getAllUserMessages(theUser.id)
+			const conversationIds = new Set()
+			conversations.forEach(x => {
+				if (x.fromId !== theUser.id) {
+					conversationIds.add(String(x.fromId))
+				}
+				if (x.toId !== theUser.id) {
+					conversationIds.add(String(x.toId))
+				}
+			})
+			theUser.conversations = conversationIds
+			return theUser
 		},
 		conversation: async(_, {input}, ctx) => {
 			if (!ctx.user) {

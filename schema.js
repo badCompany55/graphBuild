@@ -5,6 +5,7 @@ const typeDefs = gql`
 	type User {
 		id: ID!
 		username: String!
+		conversations: [ID]
 	}
 
 	input UserId {
