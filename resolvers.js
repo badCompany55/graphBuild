@@ -57,11 +57,23 @@ const resolvers = {
 			if (!passMatch) {
 				throw new Error("Invalid Login")
 			}
+			const conversations = await ctx.messagesDb.getAllUserMessages(user.id)
+			const conversationIds = new Set()
+			conversations.forEach(x => {
+				if (x.fromId !== user.id) {
+					conversationIds.add(String(x.fromId))
+				}
+				if (x.toId !== user.id) {
+					conversationIds.add(String(x.toId))
+				}
+			})
+			user.conversations = conversationIds
 
 			const token = jwt.sign(
 				{
 					id: user.id,
 					username: user.username,
+					conversations: user.conversations
 				},
 				SECRET,
 				{
