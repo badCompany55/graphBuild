@@ -62,6 +62,10 @@ const typeDefs = gql`
 		newMessage(input: NewMessage!): Message
 		deleteMessages(input: DeleteMessages!): [Ids]
 	}
+
+	type Subscription {
+		messageSent: Message
+	}
 `
 
 module.exports = typeDefs

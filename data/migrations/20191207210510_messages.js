@@ -16,7 +16,7 @@ exports.up = function(knex, Promise) {
 			.onUpdate("CASCADE")
 		tb.string("message")
 			.notNullable()
-		tb.timestamps()
+		tb.timestamps(true,true)
 	})
   
 };

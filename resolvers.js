@@ -1,6 +1,11 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
 const SECRET = process.env.JWT_SECRET
+const {PubSub} = require('apollo-server')
+const pubsub = new PubSub()
+
+const MESSAGEADDED = 'MESSAGEADDED'
+const MESSAGEDELETED = 'MESSAGEDELETED' 
 
 const resolvers = {
 	Query: {
@@ -33,8 +38,16 @@ const resolvers = {
 			if (!ctx.user) {
 				throw new Error("Not Authenticated")
 			}
-			return await ctx.messagesDb.getUserMessages(ctx.user.id, input.toId)
+			 await ctx.messagesDb.getUserMessages(ctx.user.id, input.toId)
 		},
+	},
+
+	Subscription: {
+		messageSent: {
+			subscribe: () => {
+				pubsub.asyncIterator([MESSAGEADDED])
+			}
+		}
 	},
 
 	Mutation: {
@@ -85,7 +98,9 @@ const resolvers = {
 		},
 
 		newMessage: async (_,{input}, ctx ) => {
-			return await ctx.messagesDb.postUserMessage(ctx.user.id, input.toId, input.message)
+			const newMessage = await ctx.messagesDb.postUserMessage(ctx.user.id, input.toId, input.message)
+			pubsub.publish(MESSAGEADDED, {messageSent: newMessage})
+			return newMessage
 		},
 
 		deleteMessages: async (_, {input}, ctx) => {
@@ -96,7 +111,7 @@ const resolvers = {
 				if (input.ids.includes(x.id)) {
 					return x.id
 				} else {
-					throw new Error(`Message ${x.id} doesn't belong to you. Deleation not accepted.`)
+					throw new Error(`Message ${x.id} doesn't belong to you. Deletion not accepted.`)
 				}
 			}) 
 			const returned = await ctx.messagesDb.deleteUserMessages(deleteable)
@@ -111,7 +126,7 @@ const resolvers = {
 			})
 			return object
 		},
-	}
+	},
 }
 
 module.exports = resolvers

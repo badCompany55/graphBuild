@@ -16,13 +16,16 @@ const getSingleUserById = (id) => {
 		.first()
 }
 
-const addUser = (user) => {
+const addUser = async	(user) => {
 	const newUser = {
 		username: user.username,
 		password: user.password,
 	}
 
-	return db("users").insert(newUser)
+	const anotherUser = await db("users").insert(newUser)
+	const users = await getUsers()
+	return users[users.length - 1]
+
 }
 
 module.exports = {
