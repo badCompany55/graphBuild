@@ -38,7 +38,7 @@ const resolvers = {
 			if (!ctx.user) {
 				throw new Error("Not Authenticated")
 			}
-			 await ctx.messagesDb.getUserMessages(ctx.user.id, input.toId)
+			return await ctx.messagesDb.getUserMessages(ctx.user.id, input.toId)
 		},
 	},
 
