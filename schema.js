@@ -59,12 +59,12 @@ const typeDefs = gql`
 	type Mutation {
 		register(input: UserLogin!): User!
 		login(input: UserLogin!): LoginResponse!
-		newMessage(input: NewMessage!): Message
+		newMessage(input: NewMessage!): [Message]
 		deleteMessages(input: DeleteMessages!): [Ids]
 	}
 
 	type Subscription {
-		messageSent: Message
+		currentConversation(input: Conversation): [Message]
 	}
 `
 
